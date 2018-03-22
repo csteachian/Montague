@@ -2,6 +2,18 @@
 #!/usr/bin/python3
 import scrollphathd as sphd
 import time, sys, tty, termios, os
+from urllib import urlopen
+from bs4 import BeautifulSoup
+
+html = urlopen("http://feeds.bbci.co.uk/news/rss.xml").read()
+soup = BeautifulSoup(html, "html.parser")
+
+headlines = ""
+for tag in soup.find_all("title"):
+  temp = str(tag)
+  headlines += temp[16:-11]+" | "
+
+
 
 values =     [5,4,3,2,1,2,3,4,5,6,7,8,9,8,7,6,5]
 multiplier = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
@@ -67,11 +79,17 @@ def drawHeart():
     time.sleep(1)
 
 def showFact(message):
+  message = message[:255] # cut down to 255 chars
+  message += "....."
+  print("Fact: ",message)
   sphd.write_string(message)
-  for x in range(0,((len(message)-3)*5)):
+  for x in range(0,((len(message)-4)*5)):
     sphd.show()
     sphd.scroll(1)
     time.sleep(0.01)
+  time.sleep(0.4)
+  sphd.clear()
+  sphd.show()
 
 button_delay = 0.2
 sphd.set_brightness(0.3)
@@ -92,6 +110,9 @@ while True:
     time.sleep(button_delay)
   elif (char == "t"):
     showFact("THNX PITOP")
+    time.sleep(button_delay)
+  elif (char == "n"):
+    showFact(headlines)
     time.sleep(button_delay)
   elif (char == "x"):
     exit(0)
